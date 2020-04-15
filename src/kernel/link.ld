@@ -4,7 +4,7 @@ ENTRY(__start)
 /* OUTPUT_FORMAT(elf32-i386) */
 
 SECTIONS {
-    /* lower half kernel <1MiB */
+  /* lower half kernel <1MiB */
 	. = 0x10000;
 
 	/* ensure that the multiboot header is at the beginning */
