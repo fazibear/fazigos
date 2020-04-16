@@ -1,7 +1,9 @@
-const Builder = @import("std").build.Builder;
+const std = @import("std");
+const Builder = std.build.Builder;
 
 pub fn build(b: *Builder) void {
-    const kernel = buildKernel(b);
+    const kernel_bin = buildKernel(b);
+    addQemuStep(b, kernel_bin);
 }
 
 fn buildKernel(b: *Builder) []const u8 {
@@ -30,4 +32,16 @@ fn buildKernel(b: *Builder) []const u8 {
     kernel.setBuildMode(mode);
     b.default_step.dependOn(&kernel.step);
     return kernel.getOutputPath();
+}
+
+fn addQemuStep(b: *Builder, kernel_bin: []const u8) void {
+    const qemu = b.step("qemu", "Run kernel in qemu");
+    const qemu_args = &[_][]const u8{
+        "qemu-system-i386",
+        "-kernel",
+        kernel_bin,
+    };
+    const run_qemu = b.addSystemCommand(qemu_args);
+    qemu.dependOn(&run_qemu.step);
+    run_qemu.step.dependOn(b.default_step);
 }
