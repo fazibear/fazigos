@@ -1,9 +1,11 @@
 const MultiBoot = @import("kernel/multiboot.zig");
-const Vga = @import("kernel/vga.zig");
-
+const vga = @import("kernel/vga.zig");
+const gdt = @import("kernel/gdt.zig");
 export const multiboot_header align(4) linksection(".multiboot") = MultiBoot.Header{};
 
 export fn kmain() noreturn {
-    Vga.init();
+    gdt.init();
+    vga.init();
+
     while (true) {}
 }
