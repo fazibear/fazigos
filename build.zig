@@ -16,6 +16,7 @@ fn buildKernel(b: *Builder) []const u8 {
             .cpu_arch = .i386,
             .os_tag = .freestanding,
             .abi = .none,
+            .cpu_model = .{ .explicit = &std.Target.x86.cpu._i686 }
         },
     });
 
@@ -39,9 +40,9 @@ fn buildKernel(b: *Builder) []const u8 {
 fn addQemuStep(b: *Builder, kernel_bin: []const u8) void {
     const qemu = b.step("qemu", "Run kernel in qemu");
     const qemu_args = &[_][]const u8{
-        "qemu-system-i386",
-        "-kernel",
-        kernel_bin,
+        "qemu-system-x86_64",
+        "-d", "unimp",
+        "-kernel", kernel_bin,
     };
     const run_qemu = b.addSystemCommand(qemu_args);
     qemu.dependOn(&run_qemu.step);

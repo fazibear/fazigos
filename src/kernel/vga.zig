@@ -1,8 +1,6 @@
 const std = @import("std");
 const fmt = std.fmt;
 
-var printf_buff: [256]u8 = undefined;
-
 var vga = VGA{
     .chars = @intToPtr([*]Entry, 0xb8000),
     .position = 0,
@@ -27,6 +25,7 @@ pub fn print(string: []const u8) void {
 }
 
 pub fn printf(comptime format: []const u8, args: var) void {
+    var printf_buff: [256]u8 = undefined;
     var formatted = fmt.bufPrint(printf_buff[0..], format, args) catch |err| switch (err) {
         error.NoSpaceLeft => "xxx",
     };
