@@ -2,8 +2,17 @@ const std = @import("std");
 const Builder = std.build.Builder;
 
 pub fn build(b: *Builder) void {
+    addFmtStep(b);
     const kernel_bin = buildKernel(b);
     addQemuStep(b, kernel_bin);
+}
+
+fn addFmtStep(b: *Builder) void {
+    const fmt_step = b.addFmt(&[_][]const u8{
+        "build.zig",
+        "src",
+    });
+    b.default_step.dependOn(&fmt_step.step);
 }
 
 fn buildKernel(b: *Builder) []const u8 {
@@ -16,7 +25,7 @@ fn buildKernel(b: *Builder) []const u8 {
             .cpu_arch = .i386,
             .os_tag = .freestanding,
             .abi = .none,
-            .cpu_model = .{ .explicit = &std.Target.x86.cpu._i686 }
+            .cpu_model = .{ .explicit = &std.Target.x86.cpu._i686 },
         },
     });
 
@@ -41,8 +50,10 @@ fn addQemuStep(b: *Builder, kernel_bin: []const u8) void {
     const qemu = b.step("qemu", "Run kernel in qemu");
     const qemu_args = &[_][]const u8{
         "qemu-system-x86_64",
-        "-d", "unimp",
-        "-kernel", kernel_bin,
+        "-d",
+        "unimp",
+        "-kernel",
+        kernel_bin,
     };
     const run_qemu = b.addSystemCommand(qemu_args);
     qemu.dependOn(&run_qemu.step);
