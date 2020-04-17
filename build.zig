@@ -26,6 +26,7 @@ fn buildKernel(b: *Builder) []const u8 {
 
     kernel.addAssemblyFile("src/kernel/boot.s");
     kernel.addAssemblyFile("src/kernel/gdt.s");
+    kernel.addAssemblyFile("src/kernel/isr.s");
 
     kernel.setLinkerScriptPath("src/kernel/link.ld");
     kernel.setOutputDir("build");
