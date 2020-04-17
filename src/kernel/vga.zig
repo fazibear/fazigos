@@ -1,4 +1,7 @@
 const std = @import("std");
+const fmt = std.fmt;
+
+var printf_buff: [256]u8 = undefined;
 
 var vga = VGA{
     .chars = @intToPtr([*]Entry, 0xb8000),
@@ -19,8 +22,15 @@ pub fn set_background(color: Color) void {
     vga.set_background_color(color);
 }
 
-pub fn print(comptime string: []const u8) void {
+pub fn print(string: []const u8) void {
     for (string) |char| vga.print_char(char);
+}
+
+pub fn printf(comptime format: []const u8, args: var) void {
+    var formatted = fmt.bufPrint(printf_buff[0..], format, args) catch |err| switch (err) {
+        error.NoSpaceLeft => "xxx",
+    };
+    print(formatted);
 }
 
 pub fn println(comptime string: []const u8) void {
@@ -31,14 +41,16 @@ pub fn init() void {
     clear();
     set_background(Color.Blue);
     set_color(Color.LightBlue);
-    print("********************************************************************************");
-    print("*                 _____              .__                                       *");
-    print("*               _/ ____\\____  _______|__| ____   ____  ______                  *");
-    print("*               \\   __\\\\__  \\ \\___   /  |/ ___\\ /  _ \\/  ___/                  *");
-    print("*                |  |   / __ \\_/    /|  / /_/  >  <_> )___ \\                   *");
-    print("*                |__|  (____  /_____ \\__\\___  / \\____/____  >                  *");
-    print("*                           \\/      \\/ /_____/            \\/                   *");
-    print("********************************************************************************");
+    print(
+        \\********************************************************************************
+        \\*                 _____              .__                                       *
+        \\*               _/ ____\____  _______|__| ____   ____  ______                  *
+        \\*               \   __\\__  \ \___   /  |/ ___\ /  _ \/  ___/                  *
+        \\*                |  |   / __ \_/    /|  / /_/  >  <_> )___ \                   *
+        \\*                |__|  (____  /_____ \__\___  / \____/____  >                  *
+        \\*                           \/      \/ /_____/            \/                   *
+        \\********************************************************************************
+    );
     set_background(Color.Black);
     set_color(Color.White);
 }
@@ -80,7 +92,10 @@ const VGA = struct {
         switch (char) {
             // Newline.
             '\n' => {
-                self.position += SCREEN_WIDTH - self.position % SCREEN_WIDTH;
+                const rest = self.position % SCREEN_WIDTH;
+                if (rest > 0) {
+                    self.position += SCREEN_WIDTH - rest;
+                }
             },
             // Return
             '\r' => {

@@ -35,7 +35,7 @@ pub fn set_gate(n: u8, flags: u8, offset: extern fn () void) void {
     idt_table[n].offset_high = @truncate(u16, intOffset >> 16);
     idt_table[n].flags = flags;
     idt_table[n].zero = 0;
-    idt_table[n].selector = 0x08;// gdt.KERNEL_CODE
+    idt_table[n].selector = 0x08; // gdt.KERNEL_CODE
 }
 
 pub fn init() void {
