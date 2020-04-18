@@ -1,4 +1,4 @@
-const as = @import("as.zig");
+const sys = @import("sys.zig");
 
 // Types of gates.
 pub const INTERRUPT_GATE = 0x8E;
@@ -39,5 +39,5 @@ pub fn set_gate(n: u8, flags: u8, offset: extern fn () void) void {
 }
 
 pub fn init() void {
-    as.lidt(@ptrToInt(&idtr));
+    sys.lidt(@ptrToInt(&idtr));
 }

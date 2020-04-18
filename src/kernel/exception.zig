@@ -1,5 +1,6 @@
 const isr = @import("isr.zig");
 const vga = @import("vga.zig");
+const sys = @import("sys.zig");
 
 const exceptions = &[_][]const u8{
     "Division By Zero",
@@ -51,5 +52,5 @@ pub fn handler(context: *isr.Context) void {
         context.interrupt_num,
         context.error_code,
     });
-    while (true) {}
+    sys.hang();
 }

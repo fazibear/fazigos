@@ -1,5 +1,6 @@
 const vga = @import("vga.zig");
 const idt = @import("idt.zig");
+const sys = @import("sys.zig");
 const exception = @import("exception.zig");
 const interrupt = @import("interrupt.zig");
 
@@ -60,27 +61,40 @@ pub fn init() void {
     idt.set_gate(30, idt.INTERRUPT_GATE, isr30);
     idt.set_gate(31, idt.INTERRUPT_GATE, isr31);
 
+    // itq remap
+    sys.outb(0x20, 0x11);
+    sys.outb(0xA0, 0x11);
+    sys.outb(0x21, 0x20);
+    sys.outb(0xA1, 0x28);
+    sys.outb(0x21, 0x04);
+    sys.outb(0xA1, 0x02);
+    sys.outb(0x21, 0x01);
+    sys.outb(0xA1, 0x01);
+    sys.outb(0x21, 0x0);
+    sys.outb(0xA1, 0x0);
+
     // interupts
-    // idt.set_gate(32, idt.INTERRUPT_GATE, isr32);
-    // idt.set_gate(33, idt.INTERRUPT_GATE, isr33);
-    // idt.set_gate(34, idt.INTERRUPT_GATE, isr34);
-    // idt.set_gate(35, idt.INTERRUPT_GATE, isr35);
-    // idt.set_gate(36, idt.INTERRUPT_GATE, isr36);
-    // idt.set_gate(37, idt.INTERRUPT_GATE, isr37);
-    // idt.set_gate(38, idt.INTERRUPT_GATE, isr38);
-    // idt.set_gate(39, idt.INTERRUPT_GATE, isr39);
-    // idt.set_gate(40, idt.INTERRUPT_GATE, isr40);
-    // idt.set_gate(41, idt.INTERRUPT_GATE, isr41);
-    // idt.set_gate(42, idt.INTERRUPT_GATE, isr42);
-    // idt.set_gate(43, idt.INTERRUPT_GATE, isr43);
-    // idt.set_gate(44, idt.INTERRUPT_GATE, isr44);
-    // idt.set_gate(45, idt.INTERRUPT_GATE, isr45);
-    // idt.set_gate(46, idt.INTERRUPT_GATE, isr46);
-    // idt.set_gate(47, idt.INTERRUPT_GATE, isr47);
-    //
+    idt.set_gate(32, idt.INTERRUPT_GATE, isr32);
+    idt.set_gate(33, idt.INTERRUPT_GATE, isr33);
+    idt.set_gate(34, idt.INTERRUPT_GATE, isr34);
+    idt.set_gate(35, idt.INTERRUPT_GATE, isr35);
+    idt.set_gate(36, idt.INTERRUPT_GATE, isr36);
+    idt.set_gate(37, idt.INTERRUPT_GATE, isr37);
+    idt.set_gate(38, idt.INTERRUPT_GATE, isr38);
+    idt.set_gate(39, idt.INTERRUPT_GATE, isr39);
+    idt.set_gate(40, idt.INTERRUPT_GATE, isr40);
+    idt.set_gate(41, idt.INTERRUPT_GATE, isr41);
+    idt.set_gate(42, idt.INTERRUPT_GATE, isr42);
+    idt.set_gate(43, idt.INTERRUPT_GATE, isr43);
+    idt.set_gate(44, idt.INTERRUPT_GATE, isr44);
+    idt.set_gate(45, idt.INTERRUPT_GATE, isr45);
+    idt.set_gate(46, idt.INTERRUPT_GATE, isr46);
+    idt.set_gate(47, idt.INTERRUPT_GATE, isr47);
+
     // // syscalls
     // idt.set_gate(128, idt.SYSCALL_GATE, isr128);
 }
+
 // Interrupt Service Routines defined externally in assembly.
 extern fn isr0() void;
 extern fn isr1() void;
