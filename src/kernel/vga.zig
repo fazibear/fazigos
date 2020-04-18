@@ -1,5 +1,6 @@
 const std = @import("std");
 const fmt = std.fmt;
+const sys = @import("sys.zig");
 
 var vga = VGA{
     .chars = @intToPtr([*]Entry, 0xb8000),
@@ -18,6 +19,10 @@ pub fn set_color(color: Color) void {
 
 pub fn set_background(color: Color) void {
     vga.set_background_color(color);
+}
+
+pub fn printch(char: u8) void {
+    vga.print_char(char);
 }
 
 pub fn print(string: []const u8) void {
@@ -87,6 +92,19 @@ const VGA = struct {
         self.position = 0;
     }
 
+    pub fn scroll(self: *VGA) void {
+        std.mem.copy(Entry, self.chars[0 .. SCREEN_SIZE - SCREEN_WIDTH], self.chars[SCREEN_WIDTH..SCREEN_SIZE]);
+        std.mem.set(Entry, self.chars[SCREEN_SIZE - SCREEN_WIDTH .. SCREEN_SIZE], self.entry(' '));
+        self.position -= SCREEN_WIDTH;
+    }
+
+    pub fn update_cursor(self: *const VGA) void {
+        sys.outb(0x3D4, 0x0F);
+        sys.outb(0x3D5, @truncate(u8, self.position));
+        sys.outb(0x3D4, 0x0E);
+        sys.outb(0x3D5, @truncate(u8, self.position >> 8));
+    }
+
     pub fn print_char(self: *VGA, char: u8) void {
         switch (char) {
             // Newline.
@@ -108,12 +126,19 @@ const VGA = struct {
             '\x08' => {
                 self.position -= 1;
                 self.print_char(' ');
+                self.position -= 1;
             },
             else => {
                 self.chars[self.position] = self.entry(char);
                 self.position += 1;
             },
         }
+
+        if (self.position >= SCREEN_SIZE) {
+            self.scroll();
+        }
+
+        self.update_cursor();
     }
 };
 
