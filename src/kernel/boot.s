@@ -2,15 +2,15 @@
 .type __start, @function
 
 __start:
-  # assign current stack pointer location to stack_top
-  mov $0x80000, %esp
+  mov $0x80000, %esp // Setup the stack
 
-  # call the kernel main source
-  call kmain
+  push %ebx // Pass multiboot info structure
+  push %eax // Pass multiboot magic code
+
+  call kmain // Call the kernel
 
   cli
 
-# put system in infinite loop
 sti_loop:
   sti
   jmp sti_loop
