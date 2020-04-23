@@ -7,6 +7,8 @@ const sys = @import("kernel/sys.zig");
 
 const timer = @import("kernel/timer.zig");
 const keyboard = @import("kernel/keyboard.zig");
+const serial = @import("kernel/serial.zig");
+const logger = @import("kernel/logger.zig");
 
 export const multiboot_header align(4) linksection(".multiboot") = multiboot.Header{};
 
@@ -16,19 +18,9 @@ export fn kmain(magic: u32, info: *const multiboot.Info) void {
     isr.init();
     vga.init();
 
-    vga.printf(
-        \\
-        \\! Info:
-        \\!  magic: {}
-        \\!  mem_lower: {}
-        \\!  mem_upper: {}
-        \\
-    , .{
-        magic,
-        info.mem_lower,
-        info.mem_upper,
-    });
-
+    logger.init();
     timer.init();
     keyboard.init();
+
+    logger.info("Kernel info parameter:{x}", .{info});
 }

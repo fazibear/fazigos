@@ -2,6 +2,10 @@ const std = @import("std");
 const fmt = std.fmt;
 const sys = @import("sys.zig");
 
+const Error = error{};
+const OutStream = std.io.OutStream(void, Error, format_callback);
+const out_stream = OutStream{ .context = {} };
+
 var vga = VGA{
     .chars = @intToPtr([*]Entry, 0xb8000),
     .position = 0,
@@ -29,12 +33,13 @@ pub fn print(string: []const u8) void {
     for (string) |char| vga.print_char(char);
 }
 
+fn format_callback(context: void, str: []const u8) Error!usize {
+    print(str);
+    return str.len;
+}
+
 pub fn printf(comptime format: []const u8, args: var) void {
-    var printf_buff: [256]u8 = undefined;
-    var formatted = fmt.bufPrint(printf_buff[0..], format, args) catch |err| switch (err) {
-        error.NoSpaceLeft => "xxx",
-    };
-    print(formatted);
+    fmt.format(out_stream, format, args) catch unreachable;
 }
 
 pub fn println(comptime string: []const u8) void {

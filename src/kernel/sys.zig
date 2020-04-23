@@ -1,3 +1,6 @@
+const vga = @import("vga.zig");
+const logger = @import("logger.zig");
+
 pub inline fn inb(port: u16) u8 {
     return asm volatile ("inb %[port], %[result]"
         : [result] "={al}" (-> u8)
@@ -60,7 +63,7 @@ pub inline fn ltr(desc: u16) void {
     );
 }
 
-pub inline fn hang() noreturn {
+pub inline fn halt() noreturn {
     cli();
     while (true) asm volatile ("hlt");
 }
@@ -97,4 +100,12 @@ pub fn dr7() usize {
     return asm volatile ("movl %%dr7, %[result]"
         : [result] "=r" (-> usize)
     );
+}
+
+pub fn panic(comptime format: []const u8, args: var) noreturn {
+    vga.set_color(vga.Color.White);
+    vga.set_background(vga.Color.Red);
+    logger.err(format, args);
+    vga.printf(format, args);
+    halt();
 }

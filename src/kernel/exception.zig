@@ -1,5 +1,4 @@
 const isr = @import("isr.zig");
-const vga = @import("vga.zig");
 const sys = @import("sys.zig");
 
 const exceptions = &[_][]const u8{
@@ -41,9 +40,7 @@ const exceptions = &[_][]const u8{
 };
 
 pub fn handler(context: *isr.Context) void {
-    vga.set_color(vga.Color.Black);
-    vga.set_background(vga.Color.Red);
-    vga.printf(
+    sys.panic(
         \\! System Halted: {}
         \\!   int_no: {}
         \\!   err_code: {}
@@ -52,5 +49,4 @@ pub fn handler(context: *isr.Context) void {
         context.interrupt_num,
         context.error_code,
     });
-    sys.hang();
 }

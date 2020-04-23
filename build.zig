@@ -54,6 +54,8 @@ fn addQemuStep(b: *Builder, kernel_bin: []const u8) void {
         "unimp",
         "-kernel",
         kernel_bin,
+        "-serial",
+        "stdio",
     };
     const run_qemu = b.addSystemCommand(qemu_args);
     qemu.dependOn(&run_qemu.step);
