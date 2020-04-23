@@ -13,14 +13,25 @@ const logger = @import("kernel/logger.zig");
 export const multiboot_header align(4) linksection(".multiboot") = multiboot.Header{};
 
 export fn kmain(magic: u32, info: *const multiboot.Info) void {
+    logger.info("* start kmain info parameter:{x}", .{info});
+
     gdt.init();
+    logger.info("GDT Initialized", .{});
+
     idt.init();
+    logger.info("IDT Initialized", .{});
+
     isr.init();
+    logger.info("IRS Initialized", .{});
+
     vga.init();
+    logger.info("VGA Initialized", .{});
 
-    logger.init();
     timer.init();
-    keyboard.init();
+    logger.info("timer Initialized", .{});
 
-    logger.info("Kernel info parameter:{x}", .{info});
+    keyboard.init();
+    logger.info("keyboard Initialized", .{});
+
+    logger.info("end kmain", .{});
 }
