@@ -5,6 +5,7 @@ pub fn build(b: *Builder) void {
     addFmtStep(b);
     const kernel_bin = buildKernel(b);
     addQemuStep(b, kernel_bin);
+    addIsoStep(b, kernel_bin);
 }
 
 fn addFmtStep(b: *Builder) void {
@@ -39,11 +40,24 @@ fn buildKernel(b: *Builder) []const u8 {
     kernel.addAssemblyFile("src/kernel/isr.s");
 
     kernel.setLinkerScriptPath("src/kernel/link.ld");
-    kernel.setOutputDir("build");
+    kernel.setOutputDir("build/boot");
     kernel.setTarget(target);
     kernel.setBuildMode(mode);
     b.default_step.dependOn(&kernel.step);
     return kernel.getOutputPath();
+}
+
+fn addIsoStep(b: *Builder, kernel_bin: []const u8) void {
+    const iso = b.step("iso", "Build iso for qemu");
+    const iso_args = &[_][]const u8{
+        "i386-elf-grub-mkrescue",
+        "-o",
+        "fazigos.img",
+        "build/",
+    };
+    const run_iso = b.addSystemCommand(iso_args);
+    iso.dependOn(&run_iso.step);
+    run_iso.step.dependOn(b.default_step);
 }
 
 fn addQemuStep(b: *Builder, kernel_bin: []const u8) void {
@@ -52,8 +66,10 @@ fn addQemuStep(b: *Builder, kernel_bin: []const u8) void {
         "qemu-system-x86_64",
         "-d",
         "unimp",
-        "-kernel",
-        kernel_bin,
+        "-drive",
+        "file=fazigos.img,format=raw,index=0,media=disk",
+        //"-kernel",
+        //kernel_bin,
         "-serial",
         "stdio",
     };
