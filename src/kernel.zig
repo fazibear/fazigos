@@ -15,6 +15,9 @@ export const multiboot_header align(4) linksection(".multiboot") = multiboot.Hea
 export fn kmain(magic: u32, info: *const multiboot.Info) void {
     logger.info("* start kmain info parameter:{x}", .{info});
 
+    vga.init();
+    logger.info("VGA Initialized", .{});
+
     gdt.init();
     logger.info("GDT Initialized", .{});
 
@@ -22,10 +25,7 @@ export fn kmain(magic: u32, info: *const multiboot.Info) void {
     logger.info("IDT Initialized", .{});
 
     isr.init();
-    logger.info("IRS Initialized", .{});
-
-    vga.init();
-    logger.info("VGA Initialized", .{});
+    logger.info("ISR Initialized", .{});
 
     timer.init();
     logger.info("timer Initialized", .{});
