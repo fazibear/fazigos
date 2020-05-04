@@ -1,7 +1,7 @@
-.global __start
-.type __start, @function
+.global start
+.type start, @function
 
-__start:
+start:
   mov $0x80000, %esp // Setup the stack
 
   push %ebx // Pass multiboot info structure

@@ -1,5 +1,5 @@
 /* ENTRY(x86_main) */
-ENTRY(__start)
+ENTRY(start)
 
 /* OUTPUT_FORMAT(elf32-i386) */
 
