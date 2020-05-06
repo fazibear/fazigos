@@ -17,6 +17,22 @@ pub const Header = packed struct {
     entry_addr: u32 = 0,
 };
 
+pub const AvailableMemory = struct {
+    lower: u32,
+    upper: u32,
+};
+
+const MemoryType = enum(u32) {
+    Unknown, Free, Reserved, ReservedACPI, ReservedHibernation, ReservedDefective
+};
+
+pub const MemoryMapEntry = packed struct {
+    size: u32,
+    addr: u64,
+    len: u64,
+    type: MemoryType,
+};
+
 pub const Info = packed struct {
     // Multiboot info version number.
     flags: u32,
@@ -42,7 +58,7 @@ pub const Info = packed struct {
             tabsize: u32,
             strsize: u32,
             addr: u32,
-            _reserved: u32,
+            reserved: u32,
         },
         // present if flags[5]
         shdr: extern struct {
@@ -78,4 +94,38 @@ pub const Info = packed struct {
     vbe_interface_seg: u16,
     vbe_interface_off: u16,
     vbe_interface_len: u16,
+
+    pub fn available_memory(self: *Info) ?AvailableMemory {
+        if (self.check_flag(0)) {
+            return AvailableMemory{
+                .lower = self.mem_lower,
+                .upper = self.mem_upper,
+            };
+        } else {
+            return null;
+        }
+    }
+
+    pub fn memory_map(self: *Info) ?[]MemoryMapEntry {
+        if (self.check_flag(6)) {
+            var map = @intToPtr([*]MemoryMapEntry, self.mmap_addr);
+            var slice = map[0 .. self.mmap_length / @sizeOf(MemoryMapEntry)];
+            var len = slice.len;
+            return slice;
+        } else {
+            return null;
+        }
+    }
+
+    pub fn bootloader_name(self: *Info) ?[*:0]u8 {
+        if (self.check_flag(9)) {
+            return @intToPtr([*:0]u8, self.boot_loader_name);
+        } else {
+            return null;
+        }
+    }
+
+    fn check_flag(self: *Info, comptime bit: u32) bool {
+        return self.flags & (0x1 << bit) != 0;
+    }
 };

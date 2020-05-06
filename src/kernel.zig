@@ -12,8 +12,17 @@ const logger = @import("kernel/logger.zig");
 
 export const multiboot_header align(4) linksection(".multiboot") = multiboot.Header{};
 
-export fn kmain(magic: u32, info: *const multiboot.Info) void {
-    logger.info("* start kmain info parameter:{x}", .{info});
+export fn kmain(magic: u32, info: *multiboot.Info) void {
+    logger.info("MultiBoot{x}", .{info});
+    logger.info("{x}", .{info.available_memory()});
+
+    if (info.memory_map()) |map| {
+        for (map) |mape| logger.info("{}", .{mape});
+    } else {
+        sys.halt();
+    }
+
+    logger.info("{}", .{info.bootloader_name()});
 
     vga.init();
     logger.info("VGA Initialized", .{});
