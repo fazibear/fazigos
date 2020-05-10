@@ -5,7 +5,7 @@ ENTRY(start)
 
 SECTIONS {
   /* lower half kernel <1MiB */
-	. = 0x10000;
+  . = 0x100000;
 
 	/* ensure that the multiboot header is at the beginning */
 	.multiboot :

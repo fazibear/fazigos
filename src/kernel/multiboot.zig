@@ -17,12 +17,21 @@ pub const Header = packed struct {
     entry_addr: u32 = 0,
 };
 
+pub const Module = packed struct {
+    // The memory used goes from bytes 'mod_start' to 'mod_end-1' inclusive.
+    mod_start: u32,
+    mod_end: u32,
+
+    cmdline: u32, // Module command line.
+    pad: u32, // Padding to take it to 16 bytes (must be zero).
+};
+
 pub const AvailableMemory = struct {
     lower: u32,
     upper: u32,
 };
 
-const MemoryType = enum(u32) {
+pub const MemoryType = enum(u32) {
     Unknown, Free, Reserved, ReservedACPI, ReservedHibernation, ReservedDefective
 };
 
